@@ -48,6 +48,7 @@ type Server struct {
 	ResourceGroupClient      *armresources.ResourceGroupsClient
 	AccountsClient           *armstorage.AccountsClient
 	client                   pb.MyGreeterClient
+	secondaryClient          pb.MyGreeterClient // P32e4
 	operationContainerClient oc.OperationContainerClient
 	serviceBusClient         servicebus.ServiceBusClientInterface
 	serviceBusSender         servicebus.SenderInterface
@@ -105,6 +106,13 @@ func (s *Server) Init(options Options) {
 			log.Error("did not connect: " + err.Error())
 		}
 	}
+
+	if options.SecondaryRemoteAddr != "" { // P32e4
+		s.secondaryClient, err = client.NewClient(options.SecondaryRemoteAddr, interceptor.GetClientInterceptorLogOptions(logger, logattrs.GetAttrs())) // P32e4
+		if err != nil { // P837b
+			log.Error("did not connect to secondary server: " + err.Error()) // P837b
+		} // P837b
+	} // P32e4
 
 	if options.ServiceBusHostName != "" {
 		s.serviceBusClient, err = servicebus.CreateServiceBusClient(context.Background(), options.ServiceBusHostName, nil, nil)

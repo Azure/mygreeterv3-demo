@@ -14,3 +14,19 @@ spec:
       port: {{ .Values.service.httpPort }}
   selector:
     {{- include "server.selectorLabels" . | nindent 4 }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "secondaryserver.fullname" . }}
+  namespace: {{ include "secondaryserver.fullname" . }}
+  labels:
+    {{- include "secondaryserver.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.secondaryserver.service.type }}
+  ports:
+    - name: grpc
+      port: {{ .Values.secondaryserver.service.port }}
+  selector:
+    {{- include "secondaryserver.selectorLabels" . | nindent 4 }}
