@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: externalserver
+  namespace: externalserver
+  labels:
+    app: externalserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: externalserver
+  template:
+    metadata:
+      labels:
+        app: externalserver
+    spec:
+      containers:
+        - name: externalserver
+          image: externalserver:latest
+          ports:
+            - containerPort: 50072
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+            requests:
+              cpu: "250m"
+              memory: "64Mi"
