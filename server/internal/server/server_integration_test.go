@@ -242,3 +242,95 @@ var _ = Describe("REST call test", func() {
 		})
 	})
 })
+
+var _ = Describe("External server integration test", func() {
+
+	var server *Server
+	var externalServer *Server
+	var serverPort int
+	var externalServerPort int
+	var in *pb.HelloRequest
+
+	BeforeEach(func() {
+		addr := &pb.Address{
+			Street:  "123 Main St",
+			City:    "Seattle",
+			State:   "WA",
+			Zipcode: 98012,
+		}
+		in = &pb.HelloRequest{Name: "Bob", Age: 53, Email: "test@test.com", Address: addr}
+	})
+
+	AfterEach(func() {
+		if server != nil && server.IsRunning() {
+			server.Cleanup()
+		}
+		if externalServer != nil && externalServer.IsRunning() {
+			externalServer.Cleanup()
+		}
+		server = nil
+		externalServer = nil
+		serverPort = 0
+		externalServerPort = 0
+	})
+
+	Context("when initializing the server and external server", func() {
+		It("should correctly initialize both servers based on the provided options", func() {
+			s := NewServer()
+			es := NewServer()
+
+			options := Options{
+				EnableAzureSDKCalls: false,
+				SubscriptionID:      "test-subscription-id",
+				JsonLog:             true,
+				RemoteAddr:          "localhost:50051",
+				Port:                0,
+				HTTPPort:            0,
+			}
+
+			s.Init(options)
+			es.Init(options)
+			Expect(s.ResourceGroupClient).To(BeNil())
+			Expect(s.client).ToNot(BeNil())
+			Expect(es.ResourceGroupClient).To(BeNil())
+			Expect(es.client).ToNot(BeNil())
+		})
+	})
+
+	Context("when the server and external server are available", func() {
+		BeforeEach(func() {
+			options := Options{
+				Port:                0, // Use 0 to let the system assign an available port
+				HTTPPort:            0, // Same for HTTP port
+				JsonLog:             true,
+				EnableAzureSDKCalls: true,
+				SubscriptionID:      "test",
+				RemoteAddr:          "",
+			}
+			server = NewServer()
+			server.Init(options)
+			server.Serve(options)
+
+			externalServer = NewServer()
+			externalServer.Init(options)
+			externalServer.Serve(options)
+
+			serverPort = server.GrpcPort
+			externalServerPort = externalServer.GrpcPort
+
+			// Explicitly testing state of server
+			// Continue with tests once server and grpc-gateway are up and running
+			Eventually(func() bool {
+				return server.IsRunning() && externalServer.IsRunning()
+			}, 10*time.Second).Should(BeTrue())
+		})
+
+		It("should forward the request to the external server", func() {
+			var buf bytes.Buffer
+			sayHello(&buf, serverPort, in)
+			Expect(strings.Count(buf.String(), "headers")).To(Equal(1))
+			Expect(strings.Count(buf.String(), "OK")).To(Equal(1)) // must not retry
+			Expect(buf.String()).To(ContainSubstring("Forwarded request to external server successfully"))
+		})
+	})
+})

@@ -27,6 +27,13 @@ func (s *Server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 			return out, err
 		}
 		out.Message += "| appended by server"
+	} else if s.externalClient != nil {
+		out, err = s.externalClient.SayHello(ctx, in)
+		if err != nil {
+			logger.Error("Failed to forward request to external server: " + err.Error())
+			return nil, err
+		}
+		logger.Info("Forwarded request to external server successfully")
 	} else {
 		out, err = &pb.HelloReply{Message: "Echo back what you sent me (SayHello): " + in.GetName() + " " + strconv.Itoa(int(in.GetAge())) + " " + in.GetEmail()}, nil
 	}

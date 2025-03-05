@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "externalserver.fullname" . }}
+  namespace: {{ include "externalserver.fullname" . }}
+  labels:
+    {{- include "externalserver.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: grpc
+      port: {{ .Values.service.port }}
+    - name: http
+      port: {{ .Values.service.httpPort }}
+  selector:
+    {{- include "externalserver.selectorLabels" . | nindent 4 }}
