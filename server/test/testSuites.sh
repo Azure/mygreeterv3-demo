@@ -39,3 +39,8 @@ do
     fi
 done
 echo "All folders with go files have their required test suites"
+
+# Add a new test suite for the externalserver
+cd server/internal/externalserver
+ginkgo bootstrap
+cd $currentDir

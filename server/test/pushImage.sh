@@ -18,3 +18,12 @@ then
     exit 1
 fi
 echo -e "${GREEN}Docker image push was successfull!${NC}"
+
+# Push externalserver image
+make push-externalserver-image
+if [ $? -ne 0 ]
+then
+    echo -e "${RED}Externalserver image push failed with exit code $?${NC}"
+    exit 1
+fi
+echo -e "${GREEN}Externalserver image push was successful!${NC}"
