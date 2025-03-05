@@ -50,10 +50,6 @@ server/cmd/client/client_suite_test.go
 server/cmd/client/client_test.go
 server/cmd/client/main.go
 server/cmd/client/start.go
-server/cmd/demoserver
-server/cmd/demoserver/demoserver_suite_test.go
-server/cmd/demoserver/main.go
-server/cmd/demoserver/start.go
 server/cmd/server
 server/cmd/server/main.go
 server/cmd/server/server_suite_test.go
@@ -76,7 +72,6 @@ server/deployments/templates/peerauth.yaml
 server/deployments/templates/service.yaml
 server/deployments/templates/serviceaccount.yaml
 server/deployments/values-client.yaml
-server/deployments/values-demoserver.yaml
 server/generated
 server/generated/.gitignore
 server/generated/README.md
@@ -98,12 +93,6 @@ server/internal/async/operations/longRunningOperation/longRunningEntity.go
 server/internal/async/operations/longRunningOperation/longRunning_suite_test.go
 server/internal/async/operations/longRunningOperation/longRunning_test.go
 server/internal/async/options.go
-server/internal/demoserver
-server/internal/demoserver/SayHello.go
-server/internal/demoserver/api.go
-server/internal/demoserver/demoserver.go
-server/internal/demoserver/demoserver_suite_test.go
-server/internal/demoserver/options.go
 server/internal/logattrs
 server/internal/logattrs/logattrs.go
 server/internal/logattrs/logattrs_suite_test.go

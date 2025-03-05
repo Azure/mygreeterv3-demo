@@ -28,7 +28,7 @@
                 "kind": "parameter",
                 "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
             },
-            "text": "ContainerLogV2\n| where LogMessage[\"source\"] == \"ApiRequestLog\"\n| extend PreciseTimeStamp = todatetime(LogMessage[\"time\"])\n| where PreciseTimeStamp between (_startTime.._endTime)\n| where LogMessage[\"msg\"] == \"finished call\"\n| where PodNamespace in (\"servicehubval-mygreeterv3-server\", \"servicehubval-mygreeterv3-demoserver\")",
+            "text": "ContainerLogV2\n| where LogMessage[\"source\"] == \"ApiRequestLog\"\n| extend PreciseTimeStamp = todatetime(LogMessage[\"time\"])\n| where PreciseTimeStamp between (_startTime.._endTime)\n| where LogMessage[\"msg\"] == \"finished call\"\n| where PodNamespace in (\"servicehubval-mygreeterv3-server\")",
             "usedVariables": [
                 "_endTime",
                 "_startTime"

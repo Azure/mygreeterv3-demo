@@ -94,25 +94,6 @@
         "DeployServiceResources",
         "PublishImageToAcr"
       ]
-    },
-    {
-      "name": "HelmDeploy-mygreeterv3-demoserver",
-      "targetType": "ApplicationDefinition",
-      "applications": {
-        "names": [
-          "mygreeterv3demoserver"
-        ],
-        "actions": [
-          "AppDeploy"
-        ],
-        "applyAcrossServiceResources": {
-          "definitionName": "mygreeterv3demoserver-SRDef"
-        }
-      },
-      "dependsOn": [
-        "DeployServiceResources",
-        "PublishImageToAcr"
-      ]
     }
   ]
 }

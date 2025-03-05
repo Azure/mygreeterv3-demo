@@ -113,16 +113,6 @@ func (s *Server) Serve(options Options) {
 	s.HttpPort = httpListener.Addr().(*net.TCPAddr).Port
 }
 
-// TODO: Uncomment the following code once demoserver is merged in
-// func StartDemoServer(demoserverPort int) {
-// 	go func() {
-// 		var demoserverOptions = demoserver.Options{}
-// 		demoserverOptions.Port = demoserverPort
-// 		demoserverOptions.JsonLog = false
-// 		demoserver.Serve(demoserverOptions)
-// 	}()
-// }
-
 func (s *Server) IsRunning() bool {
 	timeout := 1 * time.Second
 
