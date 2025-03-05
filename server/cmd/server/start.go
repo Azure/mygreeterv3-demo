@@ -1,4 +1,3 @@
-// Auto generated. Can be modified.
 package main
 
 import (
@@ -26,7 +25,6 @@ func init() {
 	startCmd.Flags().StringVar(&options.SubscriptionID, "subscription-id", "", "The subscription ID used to access and manage Azure resources")
 	startCmd.Flags().BoolVar(&options.EnableAzureSDKCalls, "enable-azureSDK-calls", false, "Toggle to run azureSDK CRUDL calls if cluster is enabled with workload-id")
 	startCmd.Flags().IntVar(&options.HTTPPort, "http port", 50061, "the port to serve the gRPC-Gateway on")
-	startCmd.Flags().StringVar(&options.RemoteAddr, "remote-addr", "", "the demo server's address for this server to connect to")
 	startCmd.Flags().Int64Var(&options.IntervalMilliSec, "interval-milli-sec", options.IntervalMilliSec,
 		"The interval between two requests. Negative numbers mean sending one request.")
 	startCmd.Flags().StringVar(&options.IdentityResourceID, "identity-resource-id", "", "the MSI used to authenticate to Azure from E2E env")
