@@ -1,4 +1,3 @@
-// Auto generated. Don't modify.
 package server
 
 import (

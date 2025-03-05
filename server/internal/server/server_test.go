@@ -241,3 +241,59 @@ var _ = Describe("Fakes Unit Testing", func() {
 		})
 	})
 })
+
+var _ = Describe("Secondary Server Testing", func() {
+	var (
+		ctrl              *gomock.Controller
+		mockClient        *mock.MockMyGreeterClient
+		mockSecondaryClient *mock.MockMyGreeterClient
+		s                 *Server
+	)
+
+	BeforeEach(func() {
+		ctrl = gomock.NewController(GinkgoT())
+		mockClient = mock.NewMockMyGreeterClient(ctrl)
+		mockSecondaryClient = mock.NewMockMyGreeterClient(ctrl)
+		s = &Server{
+			client:          mockClient,
+			secondaryClient: mockSecondaryClient,
+		}
+	})
+
+	Context("when the primary server is unavailable and secondary server is available", func() {
+		It("should forward the request to the secondary server", func() {
+			addr := &pb.Address{
+				Street:  "123 Main St",
+				City:    "Seattle",
+				State:   "WA",
+				Zipcode: 98012,
+			}
+			in := &pb.HelloRequest{Name: "Bob", Age: 53, Email: "test@test.com", Address: addr}
+
+			mockClient.EXPECT().SayHello(gomock.Any(), gomock.Any()).Return(nil, errors.New("server unavailable")).Times(1)
+			mockSecondaryClient.EXPECT().SayHello(gomock.Any(), gomock.Any()).Return(&pb.HelloReply{Message: "Hello, this is a successful mock response from secondary server"}, nil).Times(1)
+
+			out, err := s.SayHello(context.Background(), in)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(out.Message).To(Equal("Hello, this is a successful mock response from secondary server| appended by secondary server"))
+		})
+	})
+
+	Context("when both primary and secondary servers are unavailable", func() {
+		It("should return an error", func() {
+			addr := &pb.Address{
+				Street:  "123 Main St",
+				City:    "Seattle",
+				State:   "WA",
+				Zipcode: 98012,
+			}
+			in := &pb.HelloRequest{Name: "Bob", Age: 53, Email: "test@test.com", Address: addr}
+
+			mockClient.EXPECT().SayHello(gomock.Any(), gomock.Any()).Return(nil, errors.New("server unavailable")).Times(1)
+			mockSecondaryClient.EXPECT().SayHello(gomock.Any(), gomock.Any()).Return(nil, errors.New("secondary server unavailable")).Times(1)
+
+			_, err := s.SayHello(context.Background(), in)
+			Expect(err).To(HaveOccurred())
+		})
+	})
+})
