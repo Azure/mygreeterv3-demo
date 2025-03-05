@@ -27,3 +27,17 @@ then
     exit 1
 fi
 echo -e "${GREEN}$fileName results were: $results and above the required threshold of: $threshold${NC}"
+
+# Add a new test coverage report for the externalserver
+externalServerFileName=mygreeterv3-externalserver-coverage-report
+ginkgo -r -v --trace --coverprofile=.externalserver-coverage-report.out --skip-package=mock ./server/internal/externalserver/...
+go tool cover -html=.externalserver-coverage-report.out -o server/test/coverage_reports/$externalServerFileName.html
+externalServerResults=$(go tool cover -func=.externalserver-coverage-report.out | grep total: | awk '{print $NF}')
+externalServerNumber="${externalServerResults%\%}"
+externalServerNumber=$(printf "%.0f" $externalServerNumber)
+if [ $externalServerNumber -lt $threshold ]
+then
+    echo -e "${RED}$externalServerFileName results were: $externalServerResults and below the required threshold of: $threshold${NC}"
+    exit 1
+fi
+echo -e "${GREEN}$externalServerFileName results were: $externalServerResults and above the required threshold of: $threshold${NC}"

@@ -18,6 +18,7 @@ RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_h
 RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver
 RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/server
 RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/async
+RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/externalserver
 
 
 # Build stage II: 
@@ -28,5 +29,6 @@ COPY --from=build /server/client /
 COPY --from=build /server/demoserver /
 COPY --from=build /server/server /
 COPY --from=build /server/async /
+COPY --from=build /server/externalserver /
 
 CMD ["/server"]
