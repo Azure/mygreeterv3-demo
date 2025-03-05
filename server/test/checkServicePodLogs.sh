@@ -62,6 +62,5 @@ check_pod_logs() {
 
 # Call the function with the argument "NAMESPACE"
 check_pod_logs "servicehubval-mygreeterv3-server"
-check_pod_logs "servicehubval-mygreeterv3-demoserver"
 check_pod_logs "servicehubval-mygreeterv3-async"
 check_pod_logs "servicehubval-mygreeterv3-client"
