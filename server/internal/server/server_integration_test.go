@@ -45,7 +45,6 @@ var _ = Describe("Interceptor test", func() {
 
 	var server *Server
 	var serverPort int
-	// var demoserverPort int
 	var in *pb.HelloRequest
 
 	BeforeEach(func() {
@@ -101,24 +100,10 @@ var _ = Describe("Interceptor test", func() {
 
 			serverPort = server.GrpcPort
 
-			// StartDemoServer(demoserverPort)
-			// timeout := time.NewTimer(10 * time.Second)
-			// for {
-			// 	if IsServerRunning(demoserverPort) {
-			// 		break
-			// 	}
-			// 	time.Sleep(1 * time.Second)
-			// 	if !timeout.Stop() {
-			// 		<-timeout.C
-			// 		log.Error("Server startup check timed out")
-			// 		return
-			// 	}
-			// }
-
 			// Explicitly testing state of server
-			// Continue with tests once server and demoserver and grpc-gateway are up and running
+			// Continue with tests once server and grpc-gateway are up and running
 			Eventually(func() bool {
-				return server.IsRunning() // && IsServerRunning(demoserverPort)
+				return server.IsRunning()
 			}, 10*time.Second).Should(BeTrue())
 		})
 
@@ -175,7 +160,6 @@ var _ = Describe("Interceptor test", func() {
 var _ = Describe("REST call test", func() {
 
 	var server *Server
-	// var demoserverPort int
 	var httpPort int
 
 	var logger *log.Logger
@@ -199,22 +183,8 @@ var _ = Describe("REST call test", func() {
 
 		httpPort = server.HttpPort
 
-		// StartDemoServer(demoserverPort)
-		// timeout := time.NewTimer(10 * time.Second)
-		// for {
-		// 	if IsServerRunning(demoserverPort) {
-		// 		break
-		// 	}
-		// 	time.Sleep(1 * time.Second)
-		// 	if !timeout.Stop() {
-		// 		<-timeout.C
-		// 		log.Error("Server startup check timed out")
-		// 		return
-		// 	}
-		// }
-
 		Eventually(func() bool {
-			return server.IsRunning() //&& IsServerRunning(demoserverPort)
+			return server.IsRunning()
 		}, 10*time.Second).Should(BeTrue())
 
 		// Common setup
