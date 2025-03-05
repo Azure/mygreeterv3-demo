@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the namespaces
-NAMESPACES=("servicehubval-mygreeterv3-server" "servicehubval-mygreeterv3-client" "servicehubval-mygreeterv3-demoserver" "servicehubval-mygreeterv3-async")
+NAMESPACES=("servicehubval-mygreeterv3-server" "servicehubval-mygreeterv3-client" "servicehubval-mygreeterv3-async")
 
 # define wait time before exit
 POD_WAIT_TIME="120s"

@@ -21,7 +21,6 @@ command:
 args:
   - start
   - --json-log
-  - --remote-addr=servicehubval-mygreeterv3-demoserver.servicehubval-mygreeterv3-demoserver:50071
   - --enable-azureSDK-calls=true
   - --database-server-url=mygreeterv3-{{.resourcesName}}-{{.location}}-sql-server.database.windows.net
   - --database-name=mygreeterv3-{{.resourcesName}}-sql-database
@@ -36,7 +35,6 @@ allowedPrincipals:
   - cluster.local/ns/servicehubval-mygreeterv3-client/sa/servicehubval-mygreeterv3-client
 
 allowedRequests:
-  - /MyGreeter/SayHello
   - /MyGreeter/CreateResourceGroup
   - /MyGreeter/ReadResourceGroup
   - /MyGreeter/UpdateResourceGroup
