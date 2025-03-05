@@ -35,13 +35,12 @@ This module stores the implementation of the microservice.
     - Accepting gRPC calls and HTTP/REST calls.
     - Making calls to its dependency to fullfil incoming calls. The dependency can be a gRPC service, an HTTP service such as Azure, or something else. When it is Azure, it demonstrates how the code can assume an Azure identity and gain access to Azure.
     - The server is configured with both server interceptors (for incoming calls) and client interceptors (for outgoing calls). See details at [default interceptors](https://github.com/Azure/aks-middleware/blob/main/interceptor/interceptor.go). The buf.validate and servicehub.fieldoptions.loggable annotations in the protobuf need to work with the interceptors to be effective.
-  - demoserver. The demoserver is purely for handling calls from the server binary so that the server binary can demonstrate its outgoing calls to another gRPC service.
   - async. The async binary processes asynchronous operations (which are typically long-running) by using a processor with handlers provided by the [aks-async](https://github.com/Azure/aks-async) library.
     - This component does not receive gRPC calls, rather grabs operations directly from a connected Azure Service Bus resource in order to process them accordingly.
     - Async also utilizes an Azure SQL Server created by the service specific resources earlier, and it uses the url or connection string with the name of the specific database to connect to it.
 	  - The database is created by the bicep files and deployed in the deployment of service specific resources. The entityTableName might not be created yet (since the table is created by the server and async and server should initialize simultaneously) but that doesn't matter because if the entityTable hasn't been created, it means that the server hasn't started and async should not be receiving any messages through the service bus to process.
 - deployments. The deployments are via [Helm](https://helm.sh/).
-  - The three binaries are deployed as k8s deployments. The server and the demoserver are exposed as k8s service (ClusterIP).
+  - The three binaries are deployed as k8s deployments. The server is exposed as k8s service (ClusterIP).
   - To grant Azure managed identity to the server microservice, [AKS workload identity](https://learn.microsoft.com/en-us/azure/aks/workload-identity-deploy-cluster) is used. It involves multiple components.
     - Shared resource: The AKS cluster needs to enable this feature.
     - Service resource: Managed identity needs to trust the AKS cluster as an OIDC issuer. The managed identity output its client ID.
@@ -89,7 +88,7 @@ If you don't use go.work ((make build-image)), you need to commit your generated
 
 Deploying the changed service to Azure such as an AKS cluster for a complete modify-test cycle is slow. You can run the service on our local machine to speed up the development cycle.
 
-**Inside the mygreeterv3/server directory, you can run the client, the server, and the demoserver.**
+**Inside the mygreeterv3/server directory, you can run the client and the server.**
 
 ### Server
 
@@ -106,24 +105,6 @@ go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_val
     --enable-azureSDK-calls true --subscription-id <sub_id>
 ```
 
-The following command runs the server that will call the demoserver's sayHello method. This is to demonstrate gRPC calls from one service to another. --remote-addr <remote_addr> is demoserver's serving address.
-
-```bash
-go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/server start \
-    --remote-addr localhost:50052
-```
-
-### Demoserver
-
-When the server needs to call demoserver, you need to start the demoserver in a different port. Otherwise, both server and demoserver will try to use the same port and cause conflict.
-
-The following command runs the demoserver on a specific port 50052.
-
-```bash
-go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver start \
-    --port 50052
-```
-
 ### Client
 
 The following command runs the client which will repeatedly calls the service on `localhost:50051`. Using the example above, it will calls the server.
@@ -132,18 +113,11 @@ The following command runs the client which will repeatedly calls the service on
 go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/client hello
 ```
 
-The following command runs the client which will repeatedly calls the service on `localhost:50052`. Using the example above, it will calls the demoserver.
-
-```bash
-go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/client hello --remote-addr localhost:50052
-```
-
 ### Big picture on a local machine
 
 ```mermaid
 graph LR;
 client-->server/localhost:50051;
-server/localhost:50051-->demoserver/localhost:50052;
 ```
 
 ### Help
@@ -154,8 +128,6 @@ Examples:
 
 ```bash
 go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/client help
-
-go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver start -h
 ```
 
 
@@ -316,17 +288,6 @@ kubectl get pods -n servicehubval-mygreeterv3-server
 # check logs
 export SERVER_POD=$(kubectl get pod -n servicehubval-mygreeterv3-server -o jsonpath="{.items[0].metadata.name}")
 kubectl logs $SERVER_POD -n servicehubval-mygreeterv3-server
-```
-
-Demoserver:
-
-```bash
-# check if pod is running
-kubectl get pods -n servicehubval-mygreeterv3-demoserver
-
-# check logs
-export DEMOSERVER_POD=$(kubectl get pod -n servicehubval-mygreeterv3-demoserver -o jsonpath="{.items[0].metadata.name}")
-kubectl logs $DEMOSERVER_POD -n servicehubval-mygreeterv3-demoserver
 ```
 
 Client
