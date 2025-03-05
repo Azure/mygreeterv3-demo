@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: externalserver
+  namespace: externalserver
+  labels:
+    app: externalserver
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: 50072
+      targetPort: 50072
+  selector:
+    app: externalserver

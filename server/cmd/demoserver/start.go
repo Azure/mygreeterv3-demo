@@ -1,10 +1,11 @@
-// Auto generated. Can be modified.
 package main
 
 import (
+	"context"
 	"dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/internal/demoserver"
-
+	"dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/internal/externalserver"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 )
 
 var startCmd = &cobra.Command{
@@ -24,4 +25,15 @@ func init() {
 
 func start(cmd *cobra.Command, args []string) {
 	demoserver.Serve(options)
+}
+
+func forwardSayHelloToExternalServer(ctx context.Context, req *pb.HelloRequest) (*pb.HelloReply, error) {
+	conn, err := grpc.Dial("externalserver:50072", grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	client := pb.NewMyGreeterClient(conn)
+	return client.SayHello(ctx, req)
 }
