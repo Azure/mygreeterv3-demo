@@ -1,0 +1,118 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-04-01/RegionAgnosticRolloutSpecification.json",
+  "contentVersion": "1.0.0",
+  "rolloutMetadata": {
+    "serviceModelPath": "ServiceModel.json",
+    "scopeBindingsPath": "ScopeBinding.json",
+    "name": "Microsoft.Azure.Ev2.ServiceResources",
+    "buildSource": {
+      "parameters": {
+        "versionFile": "Version.txt"
+      }
+    },
+    "notification": {
+      "email": {
+        "to": "ksehgal@microsoft.com"
+      }
+    },
+    "configuration": {
+      "serviceScope": {
+        "specPath": "Configuration.json"
+      }
+    }
+  },
+  "orchestratedSteps": [
+    {
+      "name": "PublishImageToAcr",
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "PublishImageShellExtension-SRDef",
+      "actions": [
+        "Shell/push-image-to-acr"
+      ]
+    },
+    {
+      "name": "DeployServiceResources",
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "azureSDKResources-SRDef",
+      "actions": [
+        "deploy"
+      ]
+    },
+    {
+      "name": "HelmDeploy-mygreeterv3-client",
+      "targetType": "ApplicationDefinition",
+      "applications": {
+        "names": [
+          "mygreeterv3client"
+        ],
+        "actions": [
+          "AppDeploy"
+        ],
+        "applyAcrossServiceResources": {
+          "definitionName": "mygreeterv3client-SRDef"
+        }
+      },
+      "dependsOn": [
+        "DeployServiceResources",
+        "PublishImageToAcr"
+      ]
+    },
+    {
+      "name": "HelmDeploy-mygreeterv3-server",
+      "targetType": "ApplicationDefinition",
+      "applications": {
+        "names": [
+          "mygreeterv3server"
+        ],
+        "actions": [
+          "AppDeploy"
+        ],
+        "applyAcrossServiceResources": {
+          "definitionName": "mygreeterv3server-SRDef"
+        }
+      },
+      "dependsOn": [
+        "DeployServiceResources",
+        "PublishImageToAcr"
+      ]
+    },
+    {
+      "name": "HelmDeploy-mygreeterv3-async",
+      "targetType": "ApplicationDefinition",
+      "applications": {
+        "names": [
+          "mygreeterv3async"
+        ],
+        "actions": [
+          "AppDeploy"
+        ],
+        "applyAcrossServiceResources": {
+          "definitionName": "mygreeterv3async-SRDef"
+        }
+      },
+      "dependsOn": [
+        "DeployServiceResources",
+        "PublishImageToAcr"
+      ]
+    },
+    {
+      "name": "HelmDeploy-mygreeterv3-demoserver",
+      "targetType": "ApplicationDefinition",
+      "applications": {
+        "names": [
+          "mygreeterv3demoserver"
+        ],
+        "actions": [
+          "AppDeploy"
+        ],
+        "applyAcrossServiceResources": {
+          "definitionName": "mygreeterv3demoserver-SRDef"
+        }
+      },
+      "dependsOn": [
+        "DeployServiceResources",
+        "PublishImageToAcr"
+      ]
+    }
+  ]
+}

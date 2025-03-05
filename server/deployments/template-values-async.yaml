@@ -1,0 +1,34 @@
+# Default values for server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: servicehubval-mygreeterv3-async
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations:
+    azure.workload.identity/client-id: __AZURESDK_WORKLOAD_IDENTITY_CLIENT_ID__ # in make file, generate another file that will replace client id
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+command:
+  - /async
+
+args:
+  - start
+  - --json-log
+  - --subscription-id={{.subscriptionId}}
+  - --service-bus-hostname=servicehubval-{{.resourcesName}}-{{.location}}-sb-ns.servicebus.windows.net
+  - --service-bus-queue-name=servicehubval-{{.resourcesName}}-queue
+  - --database-server-url=mygreeterv3-{{.resourcesName}}-{{.location}}-sql-server.database.windows.net
+  - --database-name=mygreeterv3-{{.resourcesName}}-sql-database
+  - --database-port=1433
+  - --opcon-addr=servicehubval-operationcontainer-server.servicehubval-operationcontainer-server:50251
+
+# Info used for authorization policy
+allowedPrincipals:
+  - cluster.local/ns/servicehubval-mygreeterv3-client/sa/servicehubval-mygreeterv3-client

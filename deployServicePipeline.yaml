@@ -1,0 +1,167 @@
+# Run a Bash script on macOS, Linux, or Windows
+jobs:
+  - job: mygreeterv3TestCoverage
+    displayName: "[mygreeterv3] Generate test coverage reports"
+    pool:
+      vmImage: "ubuntu-latest"
+    steps:
+      - task: GoTool@0
+        inputs:
+          version: '1.23.2'
+      - task: Bash@3
+        displayName: Test Suite Check
+        inputs:
+          targetType: "filePath"
+          filePath: mygreeterv3/server/test/testSuites.sh
+          failOnStderr: false
+      - task: Bash@3
+        displayName: Test Coverage for Output
+        inputs:
+          targetType: "filePath"
+          filePath: mygreeterv3/server/test/testCoverageOutput.sh
+          failOnStderr: false
+        env:
+          threshold: 5
+          READPAT: $(READPAT)
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish test coverage as an artifact"
+        inputs:
+          targetPath: "mygreeterv3/server/test/coverage_reports"
+          artifactName: mygreeterv3_CoverageReports
+  - job: mygreeterv3BuildImage
+    displayName: "[mygreeterv3] Build image"
+    pool:
+      vmImage: "ubuntu-latest"
+    dependsOn:
+      #This job is mentioned in main pipeline yaml file (within pipeline files directory)
+      - GenerateAndPublishEnvConfig
+    steps:
+      - template: ../pipeline-files/downloadRequirements.yaml
+      #TODO: Change this to split build and push, when build option is available instead of buildx.
+      - task: Bash@3
+        displayName: Build image
+        inputs:
+          targetType: "filePath"
+          filePath: mygreeterv3/server/test/buildImage.sh
+          failOnStderr: false
+        env:
+          WORKSPACE: false
+          READPAT: $(READPAT)
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish docker image as an artifact"
+        inputs:
+          targetPath: "mygreeterv3/server/generated/mygreeterv3-image.tar"
+          artifactName: mygreeterv3-image
+  - job: mygreeterv3BuildWorkspaceImage
+    displayName: "[mygreeterv3] Build go workspace image"
+    pool:
+      vmImage: "ubuntu-latest"
+    dependsOn:
+      #This job is mentioned in main pipeline yaml file (within pipeline files directory)
+      - GenerateAndPublishEnvConfig
+    steps:
+      - template: ../pipeline-files/downloadRequirements.yaml
+      #TODO: Change this to split build and push, when build option is available instead of buildx.
+      - task: Bash@3
+        displayName: Build go workspace image
+        inputs:
+          targetType: "filePath"
+          filePath: mygreeterv3/server/test/buildImage.sh
+          failOnStderr: false
+        env:
+          WORKSPACE: true
+          READPAT: $(READPAT)
+  - job: mygreeterv3PushImage
+    displayName: "[mygreeterv3] Push image"
+    pool:
+      vmImage: "ubuntu-latest"
+    dependsOn:
+      #This job is mentioned in main pipeline yaml file (within pipeline files directory)
+      - ProvisionSharedResources
+      - mygreeterv3BuildImage
+    steps:
+      - template: ../pipeline-files/downloadRequirements.yaml
+      - task: DownloadPipelineArtifact@2
+        displayName: "Download docker image artifact"
+        inputs:
+          artifactName: mygreeterv3-image
+          targetPath: "$(System.DefaultWorkingDirectory)/mygreeterv3/server/generated/"
+      - task: AzureCLI@2
+        displayName: Push image
+        inputs:
+          # azureSubscription corresponds to the name of the azure resource manager service
+          # connection that is supposed to be used for the pipeline task.
+          azureSubscription: ServiceHubValidation_ServiceConnection
+          scriptType: "bash"
+          scriptLocation: "scriptPath"
+          scriptPath: mygreeterv3/server/test/pushImage.sh
+  - job: mygreeterv3ProvisionServiceResources
+    displayName: "[mygreeterv3] Provision service specific resources"
+    pool:
+      vmImage: "ubuntu-latest"
+    dependsOn:
+      #This job is mentioned in main pipeline yaml file (within pipeline files directory)
+      - ProvisionSharedResources
+    steps:
+      - template: ../pipeline-files/downloadRequirements.yaml
+      - task: AzureCLI@2
+        displayName: Provision service specific resources
+        inputs:
+          # azureSubscription corresponds to the name of the azure resource manager service
+          # connection that is supposed to be used for the pipeline task.
+          azureSubscription: ServiceHubValidation_ServiceConnection
+          scriptType: "bash"
+          scriptLocation: "scriptPath"
+          scriptPath: mygreeterv3/server/test/provisionServiceResources.sh
+          # If we re-add make service into deploy-resources, these arguments will 
+          # be needed for pipeline to successfully access the private repository.
+          # arguments: $(READPAT)
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish artifact directory"
+        inputs:
+          targetPath: "mygreeterv3/server/artifacts"
+          artifactName: mygreeterv3_ArtifactDirectory
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish adx dashboard as an artifact"
+        inputs:
+          targetPath: "mygreeterv3/server/monitoring/dashboard/adx-dashboard.json"
+          artifactName: mygreeterv3-dashboard
+      - task: Bash@3
+        displayName: Prepare all markdown files to publish
+        inputs:
+          targetType: "inline"
+          script: |
+            cd mygreeterv3/server
+            mkdir markdown_files
+            if ls resources/**/*.md 1> /dev/null 2>&1; then
+              find resources -name "*.md" -not -name "ai-summary.md" -exec mv {} markdown_files \;
+            fi
+          failOnStderr: false
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish service specific resource markdown files"
+        inputs:
+          targetPath: "mygreeterv3/server/markdown_files"
+          artifactName: mygreeterv3_SpecificResourceMarkdownFiles
+  - job: mygreeterv3DeployService
+    displayName: "[mygreeterv3] Deploy Service"
+    pool:
+      vmImage: "ubuntu-latest"
+    dependsOn:
+      - mygreeterv3PushImage
+      - mygreeterv3ProvisionServiceResources
+    steps:
+      - template: ../pipeline-files/downloadRequirements.yaml
+      - task: DownloadPipelineArtifact@2
+        displayName: "Download artifact directory"
+        inputs:
+          artifactName: mygreeterv3_ArtifactDirectory
+          targetPath: "$(System.DefaultWorkingDirectory)/mygreeterv3/server/artifacts"
+      - task: AzureCLI@2
+        displayName: Deploy and test service
+        inputs:
+          # azureSubscription corresponds to the name of the azure resource manager service
+          # connection that is supposed to be used for the pipeline task.
+          azureSubscription: ServiceHubValidation_ServiceConnection
+          scriptType: "bash"
+          scriptLocation: "scriptPath"
+          scriptPath: mygreeterv3/server/test/deployService.sh

@@ -1,0 +1,402 @@
+{
+    "$schema": "https://dataexplorer.azure.com/static/d/schema/51/dashboard.json",
+    "id": "3303e636-d213-4452-a5f9-b752f952f5b4",
+    "eTag": "359b71a0-7d30-41b1-8ed9-ffc3db3b66a3",
+    "schema_version": "51",
+    "title": "External mygreeterv3 Dashboard",
+    "autoRefresh": {
+        "enabled": true,
+        "defaultInterval": "30m",
+        "minInterval": "5m"
+    },
+    "baseQueries": [
+        {
+    "id": "99e21b1b-5aed-43e8-8071-f4a777fd2979",
+    "queryId": "b5d22ee5-8297-4adf-ab56-404c2f7158fa",
+    "variableName": "_baseQuery"
+},
+{
+    "id": "0e6f338d-d012-4164-947c-06651ea07091",
+    "queryId": "1e39e591-61ea-4f3d-bc8e-4b4038e5cc3e",
+    "variableName": "_tileBaseQuery"
+}
+    ],
+    "queries": [
+        {
+            "id": "b5d22ee5-8297-4adf-ab56-404c2f7158fa",
+            "dataSource": {
+                "kind": "parameter",
+                "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+            },
+            "text": "ContainerLogV2\n| where LogMessage[\"source\"] == \"ApiRequestLog\"\n| extend PreciseTimeStamp = todatetime(LogMessage[\"time\"])\n| where PreciseTimeStamp between (_startTime.._endTime)\n| where LogMessage[\"msg\"] == \"finished call\"\n| where PodNamespace in (\"servicehubval-mygreeterv3-server\", \"servicehubval-mygreeterv3-demoserver\")",
+            "usedVariables": [
+                "_endTime",
+                "_startTime"
+            ]
+        },
+        {
+            "id": "1e39e591-61ea-4f3d-bc8e-4b4038e5cc3e",
+            "dataSource": {
+                "kind": "parameter",
+                "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+            },
+            "text": "_baseQuery\n| where ContainerName == _container\n| where LogMessage[\"component\"] == _component",
+            "usedVariables": [
+                "_baseQuery",
+                "_component",
+                "_container"
+            ]
+        },
+            {
+    "dataSource": {
+        "kind": "parameter",
+        "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+    },
+    "text": "let tempBaseQuery = _tileBaseQuery\n| where LogMessage[\"method\"] == _method;\n\ntempBaseQuery\n| where LogMessage[\"protocol\"] == \"REST\"\n| extend code = toint(LogMessage[\"code\"])\n| summarize \n total = count(),\nerror = countif(code !between (200 .. 299)) \nby bin(PreciseTimeStamp,5m)\n| extend ratio = round(error * 100.0/total, 3)\n| project PreciseTimeStamp, ratio, protocol=\"REST\"\n\n| union\n\n(tempBaseQuery\n| where LogMessage[\"protocol\"] == \"grpc\"\n| extend code = tostring(LogMessage[\"code\"])\n| summarize \n total = count(),\nerror = countif(code != \"OK\") \nby bin(PreciseTimeStamp,5m)\n| extend ratio = round(error * 100.0/total, 3)\n| project PreciseTimeStamp, ratio, protocol=\"grpc\")\n",
+    "id": "a9efb186-e844-4ecd-a62a-d3a8bde685dd",
+    "usedVariables": [
+        "_method",
+        "_tileBaseQuery"
+    ]
+},
+{
+    "dataSource": {
+        "kind": "parameter",
+        "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+    },
+    "text": "let binSizeMinute = timespan(5m);\nlet binSizeSecond = binSizeMinute / 1s;\n_tileBaseQuery\n| where LogMessage[\"method\"] == _method\n| summarize latency = round( avg(todouble(LogMessage[\"time_ms\"])), 3)\n    by\n    code=tostring(LogMessage[\"code\"]),\n    bin(PreciseTimeStamp, binSizeMinute)",
+    "id": "dbc942d4-883a-4fd0-8ee3-b536ee58be69",
+    "usedVariables": [
+        "_method",
+        "_tileBaseQuery"
+    ]
+},
+{
+    "dataSource": {
+        "kind": "parameter",
+        "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+    },
+    "text": "let binSizeMinute = timespan(5m);\nlet binSizeSecond = binSizeMinute / 1s;\n_tileBaseQuery\n| where LogMessage[\"method\"] == _method or isempty(_method)\n| summarize QPS = round(count() / binSizeSecond, 3)\n    by\n    code=tostring(LogMessage[\"code\"]),\n    bin(PreciseTimeStamp, binSizeMinute)\n\n",
+    "id": "2540c945-7341-4778-86bf-3047ac38db4d",
+    "usedVariables": [
+        "_method",
+        "_tileBaseQuery"
+    ]
+},
+{
+    "dataSource": {
+        "kind": "parameter",
+        "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+    },
+    "text": "_baseQuery\n| distinct container=ContainerName\n",
+    "id": "d6f70dc3-7b47-4af6-a3f7-98486effc43b",
+    "usedVariables": [
+        "_baseQuery"
+    ]
+},
+{
+    "dataSource": {
+        "kind": "parameter",
+        "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+    },
+    "text": "_baseQuery\n| distinct component=tostring(LogMessage[\"component\"])\n",
+    "id": "b9413d5a-daf4-4e28-89eb-ac9659ff0f39",
+    "usedVariables": [
+        "_baseQuery"
+    ]
+},
+{
+    "dataSource": {
+        "kind": "parameter",
+        "parameterId": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92"
+    },
+    "text": "_baseQuery\n| where ContainerName == _container\n| where LogMessage[\"component\"] == _component\n| distinct method=tostring(LogMessage[\"method\"])",
+    "id": "e170a030-4cfc-4381-9ae5-fc12ccdf2027",
+    "usedVariables": [
+        "_baseQuery",
+        "_component",
+        "_container"
+    ]
+}
+    ],
+    "tiles": [
+        {
+    "id": "21e6efd2-6c31-456c-b1fe-d1bd290ba2df",
+    "title": "mygreeterv3 Dashboard",
+    "visualType": "markdownCard",
+    "pageId": "0c7d1052-237a-4600-8cda-b45b91e5c3e5",
+    "layout": {
+        "x": 5,
+        "y": 0,
+        "width": 8,
+        "height": 2
+    },
+    "markdownText": "## MyGreeter Metrics",
+    "visualOptions": {}
+},
+{
+    "id": "df4deeb4-d4b1-4050-9f9c-89f74ea4dc8a",
+    "layout": {
+        "x": 0,
+        "y": 2,
+        "width": 10,
+        "height": 10
+    },
+    "pageId": "0c7d1052-237a-4600-8cda-b45b91e5c3e5",
+    "title": "Error ratio (%)",
+    "visualType": "scatter",
+    "queryRef": {
+        "kind": "query",
+        "queryId": "a9efb186-e844-4ecd-a62a-d3a8bde685dd"
+    },
+    "visualOptions": {
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "hideLegend": false,
+        "multipleYAxes": {
+            "additional": [],
+            "base": {
+                "columns": [],
+                "horizontalLines": [],
+                "id": "-1",
+                "label": "Ratio",
+                "yAxisMaximumValue": null,
+                "yAxisMinimumValue": null,
+                "yAxisScale": "linear"
+            },
+            "showMultiplePanels": false
+        },
+        "seriesColumns": null,
+        "verticalLine": "",
+        "xAxisScale": "linear",
+        "xColumn": "PreciseTimeStamp",
+        "xColumnTitle": "Timestamp",
+        "yColumns": [
+            "ratio"
+        ],
+        "crossFilter": [],
+        "drillthrough": []
+    }
+},
+{
+    "id": "e92071bc-74cb-4121-86f3-bd815ed27cc3",
+    "layout": {
+        "x": 5,
+        "y": 12,
+        "width": 10,
+        "height": 10
+    },
+    "pageId": "0c7d1052-237a-4600-8cda-b45b91e5c3e5",
+    "title": "Latency by error code (msec)",
+    "visualType": "scatter",
+    "queryRef": {
+        "kind": "query",
+        "queryId": "dbc942d4-883a-4fd0-8ee3-b536ee58be69"
+    },
+    "visualOptions": {
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "hideLegend": false,
+        "multipleYAxes": {
+            "additional": [],
+            "base": {
+                "columns": [],
+                "horizontalLines": [],
+                "id": "-1",
+                "label": "Latency (msec)",
+                "yAxisMaximumValue": null,
+                "yAxisMinimumValue": null,
+                "yAxisScale": "linear"
+            },
+            "showMultiplePanels": false
+        },
+        "seriesColumns": null,
+        "verticalLine": "",
+        "xAxisScale": "linear",
+        "xColumn": "PreciseTimeStamp",
+        "xColumnTitle": "Timestamp",
+        "yColumns": [
+            "latency"
+        ],
+        "crossFilter": [],
+        "drillthrough": []
+    }
+},
+{
+    "id": "b2c5a047-365e-49c7-8437-1df2ff0e1738",
+    "layout": {
+        "x": 10,
+        "y": 2,
+        "width": 10,
+        "height": 10
+    },
+    "pageId": "0c7d1052-237a-4600-8cda-b45b91e5c3e5",
+    "title": "QPS by error code",
+    "visualType": "scatter",
+    "queryRef": {
+        "kind": "query",
+        "queryId": "2540c945-7341-4778-86bf-3047ac38db4d"
+    },
+    "visualOptions": {
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "hideLegend": false,
+        "multipleYAxes": {
+            "additional": [],
+            "base": {
+                "columns": [],
+                "horizontalLines": [],
+                "id": "-1",
+                "label": "Query Per Second",
+                "yAxisMaximumValue": null,
+                "yAxisMinimumValue": null,
+                "yAxisScale": "linear"
+            },
+            "showMultiplePanels": false
+        },
+        "seriesColumns": null,
+        "verticalLine": "",
+        "xAxisScale": "linear",
+        "xColumn": "PreciseTimeStamp",
+        "xColumnTitle": "Timestamp",
+        "yColumns": [
+            "QPS"
+        ],
+        "crossFilter": [],
+        "drillthrough": []
+    }
+}
+    ],
+    "parameters": [
+        {
+    "kind": "duration",
+    "id": "ce6dd3c7-bd48-45c5-818e-5401c5ff43b2",
+    "displayName": "Time range",
+    "description": "Select the time range you wish to examine.",
+    "beginVariableName": "_startTime",
+    "endVariableName": "_endTime",
+    "defaultValue": {
+        "kind": "dynamic",
+        "count": 1,
+        "unit": "hours"
+    },
+    "showOnPages": {
+        "kind": "all"
+    }
+},
+{
+    "kind": "dataSource",
+    "id": "0d2f33d6-0a43-4244-a5f0-70d3aad4ca92",
+    "displayName": "_database",
+    "description": "Select the database you wish to query your data from.",
+    "defaultValue": {
+        "kind": "dataSource",
+        "dataSourceId": "1ede2aa1-b8a8-4aae-9dac-19ad6b648b77"
+    },
+    "dataSource": {
+        "kind": "dataSource",
+        "values": {
+            "kind": "all"
+        }
+    },
+    "showOnPages": {
+        "kind": "all"
+    }
+},
+{
+    "kind": "string",
+    "id": "c418aadf-d4c0-47b7-9c21-5b12e8653ff6",
+    "displayName": "_container",
+    "description": "Select the source container from which we retrieve logs to generate the dashboard.",
+    "variableName": "_container",
+    "selectionType": "scalar",
+    "includeAllOption": false,
+    "defaultValue": {
+        "kind": "query-result"
+    },
+    "dataSource": {
+        "kind": "query",
+        "columns": {
+            "value": "container",
+            "label": "container"
+        },
+        "queryRef": {
+            "kind": "query",
+            "queryId": "d6f70dc3-7b47-4af6-a3f7-98486effc43b"
+        }
+    },
+    "showOnPages": {
+        "kind": "all"
+    }
+},
+{
+    "kind": "string",
+    "id": "3f03d795-823e-41ac-bc09-9c575436ce8c",
+    "displayName": "_component",
+    "description": "Select whether to examine the outgoing client requests from the container or focus on the incoming server requests.",
+    "variableName": "_component",
+    "selectionType": "scalar",
+    "includeAllOption": false,
+    "defaultValue": {
+        "kind": "query-result"
+    },
+    "dataSource": {
+        "kind": "query",
+        "columns": {
+            "value": "component"
+        },
+        "queryRef": {
+            "kind": "query",
+            "queryId": "b9413d5a-daf4-4e28-89eb-ac9659ff0f39"
+        }
+    },
+    "showOnPages": {
+        "kind": "all"
+    }
+},
+{
+    "kind": "string",
+    "id": "23d394a2-a04f-4e15-a04a-9262c5668408",
+    "displayName": "_method",
+    "description": "Select which method the dashboard will filter on.",
+    "variableName": "_method",
+    "selectionType": "scalar",
+    "includeAllOption": false,
+    "defaultValue": {
+        "kind": "query-result"
+    },
+    "dataSource": {
+        "kind": "query",
+        "columns": {
+            "value": "method"
+        },
+        "queryRef": {
+            "kind": "query",
+            "queryId": "e170a030-4cfc-4381-9ae5-fc12ccdf2027"
+        }
+    },
+    "showOnPages": {
+        "kind": "selection",
+        "pageIds": [
+            "0c7d1052-237a-4600-8cda-b45b91e5c3e5"
+        ]
+    }
+}
+    ],
+    "dataSources": [
+        {
+            "id": "1ede2aa1-b8a8-4aae-9dac-19ad6b648b77",
+            "name": "servicehubval-{{.resourcesName}}-data",
+            "clusterUri": "https://ade.loganalytics.io/subscriptions/{{.subscriptionId}}/resourcegroups/servicehubval-{{.resourcesName}}-rg/providers/microsoft.operationalinsights/workspaces/servicehubval-{{.resourcesName}}-workspace",
+            "database": "servicehubval-{{.resourcesName}}-workspace",
+            "kind": "manual-kusto",
+            "scopeId": "kusto"
+        }
+    ],
+    "pages": [
+        {
+    "id": "0c7d1052-237a-4600-8cda-b45b91e5c3e5",
+    "name": "mygreeterv3"
+}
+    ]
+}

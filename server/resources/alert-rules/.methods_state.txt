@@ -1,0 +1,12 @@
+SayHello.ServiceResources.Template.bicep
+CreateResourceGroup.ServiceResources.Template.bicep
+ReadResourceGroup.ServiceResources.Template.bicep
+DeleteResourceGroup.ServiceResources.Template.bicep
+UpdateResourceGroup.ServiceResources.Template.bicep
+ListResourceGroups.ServiceResources.Template.bicep
+CreateStorageAccount.ServiceResources.Template.bicep
+ReadStorageAccount.ServiceResources.Template.bicep
+DeleteStorageAccount.ServiceResources.Template.bicep
+UpdateStorageAccount.ServiceResources.Template.bicep
+ListStorageAccounts.ServiceResources.Template.bicep
+StartLongRunningOperation.ServiceResources.Template.bicep

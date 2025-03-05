@@ -1,0 +1,654 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "MyGreeter"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/async/longrunningoperation": {
+      "post": {
+        "summary": "Start a long running operation.",
+        "description": "This call starts an async long running operation.",
+        "operationId": "MyGreeter_StartLongRunningOperation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/StartLongRunningOperationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StartLongRunningOperationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      }
+    },
+    "/v1/hello": {
+      "post": {
+        "summary": "Send a greeting",
+        "description": "This operation sends a greeting to the user.",
+        "operationId": "MyGreeter_SayHello",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/HelloReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HelloRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      }
+    },
+    "/v1/resourcegroups": {
+      "get": {
+        "summary": "List all resource groups",
+        "description": "This operation lists all the resource groups.",
+        "operationId": "MyGreeter_ListResourceGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ListResourceGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyGreeter"
+        ]
+      },
+      "post": {
+        "summary": "Create a resource group",
+        "description": "This operation creates a new resource group.",
+        "operationId": "MyGreeter_CreateResourceGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateResourceGroupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      }
+    },
+    "/v1/resourcegroups/{name}": {
+      "get": {
+        "summary": "Read a resource group",
+        "description": "This operation reads the details of a resource group.",
+        "operationId": "MyGreeter_ReadResourceGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ReadResourceGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a resource group",
+        "description": "This operation deletes a resource group.",
+        "operationId": "MyGreeter_DeleteResourceGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      },
+      "put": {
+        "summary": "Update a resource group",
+        "description": "This operation updates the tags of a resource group.",
+        "operationId": "MyGreeter_UpdateResourceGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UpdateResourceGroupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      }
+    },
+    "/v1/resourcegroups/{rgName}/storageaccounts": {
+      "get": {
+        "summary": "List all storage accounts",
+        "description": "This operation lists all the storage accounts.",
+        "operationId": "MyGreeter_ListStorageAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ListStorageAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "rgName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      },
+      "post": {
+        "summary": "Create a storage account",
+        "description": "This operation creates a new storage account.",
+        "operationId": "MyGreeter_CreateStorageAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CreateStorageAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "rgName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MyGreeterCreateStorageAccountBody"
+            }
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      }
+    },
+    "/v1/resourcegroups/{rgName}/storageaccounts/{saName}": {
+      "get": {
+        "summary": "Read a storage account",
+        "description": "This operation reads the details of a storage account.",
+        "operationId": "MyGreeter_ReadStorageAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ReadStorageAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "rgName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "saName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a storage account",
+        "description": "This operation deletes a storage account.",
+        "operationId": "MyGreeter_DeleteStorageAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "rgName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "saName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      },
+      "put": {
+        "summary": "Update a storage account",
+        "description": "This operation updates the tags of a storage account.",
+        "operationId": "MyGreeter_UpdateStorageAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UpdateStorageAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "rgName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "saName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "tags": [
+          "MyGreeter"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Address": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "The city name"
+        },
+        "state": {
+          "type": "string",
+          "title": "The state name"
+        },
+        "zipcode": {
+          "type": "integer",
+          "format": "int32",
+          "title": "The zip code"
+        },
+        "street": {
+          "type": "string",
+          "title": "The street name"
+        }
+      }
+    },
+    "CreateResourceGroupRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "CreateStorageAccountResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "HelloReply": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "HelloRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "email": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
+    "ListResourceGroupResponse": {
+      "type": "object",
+      "properties": {
+        "rgList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ResourceGroup"
+          }
+        }
+      }
+    },
+    "ListStorageAccountResponse": {
+      "type": "object",
+      "properties": {
+        "saList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/StorageAccount"
+          }
+        }
+      }
+    },
+    "MyGreeterCreateStorageAccountBody": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "ReadResourceGroupResponse": {
+      "type": "object",
+      "properties": {
+        "resourceGroup": {
+          "$ref": "#/definitions/ResourceGroup"
+        }
+      }
+    },
+    "ReadStorageAccountResponse": {
+      "type": "object",
+      "properties": {
+        "storageAccount": {
+          "$ref": "#/definitions/StorageAccount"
+        }
+      }
+    },
+    "ResourceGroup": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        }
+      }
+    },
+    "StartLongRunningOperationRequest": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "entityType": {
+          "type": "string"
+        },
+        "expirationTimestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "********************ASYNC OPERATIONS********************"
+    },
+    "StartLongRunningOperationResponse": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "type": "string"
+        }
+      }
+    },
+    "StorageAccount": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        }
+      }
+    },
+    "UpdateResourceGroupResponse": {
+      "type": "object",
+      "properties": {
+        "resourceGroup": {
+          "$ref": "#/definitions/ResourceGroup"
+        }
+      }
+    },
+    "UpdateStorageAccountResponse": {
+      "type": "object",
+      "properties": {
+        "storageAccount": {
+          "$ref": "#/definitions/StorageAccount"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

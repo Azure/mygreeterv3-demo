@@ -1,0 +1,41 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+{
+    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/scopeBindings.json",
+    "contentVersion": "1.0.0.0",
+    "scopeBindings": [
+        {
+            "scopeTagName": "sharedInputs",
+            "bindings": [
+                {
+                    "find": "{{.resourcesName}}",
+                    "replaceWith": "ev2"
+                },
+                {
+                    "find": "{{.subscriptionId}}",
+                    "replaceWith": "$azureSubscriptionId()"
+                },
+                {
+                    "find": "{{.location}}",
+                    "replaceWith": "$location()"
+                },
+                {
+                    "find": "{{.resourceGroupName}}",
+                    "replaceWith": "$azureResourceGroup()"
+                },
+                {
+                    "find": "{{.serviceImageTag}}",
+                    "replaceWith": "$buildVersion()"
+                }
+            ]
+        },
+        {
+            "scopeTagName": "HelmInputs",
+            "bindings": [
+                {
+                    "find": "__AZURESDK_WORKLOAD_IDENTITY_CLIENT_ID__",
+                    "replaceWith": "$ServiceResourceDefinition(azureSDKResources-SRDef).action(deploy).outputs(clientId.value)"
+                }
+            ]
+        }
+    ]
+}

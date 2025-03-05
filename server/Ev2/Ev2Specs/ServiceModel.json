@@ -1,0 +1,239 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-04-01/RegionAgnosticServiceModel.json",
+  "contentVersion": "1.0.0",
+  "serviceMetadata": {
+    "serviceIdentifier": "dfe3a810-861c-44da-9b00-71e57a865194",
+    "serviceGroup": "Microsoft.Azure.Ev2.ServiceResources.mygreeterv3",
+    "environment": "$config(environment)",
+    "TenantId": "$config(tenantId)",
+    "displayName": "mygreeterv3DisplayName"
+  },
+  "serviceResourceGroupDefinitions": [
+    {
+      "name": "mygreeterv3-SRGDef",
+      "subscriptionKey": "servicehubval-$config(regionShortName)-sub",
+      "azureResourceGroupName": "servicehubval-ev2-$config(regionShortName)-rg",
+      "ServiceResourceDefinitions": [
+        {
+          "name": "azureSDKResources-SRDef",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\Azuresdk.ServiceResources.Template.json",
+              "parametersPath": "Parameters\\ServiceResources.Parameters.json",
+              "deploymentLevel": "Subscription"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            }
+          ]
+        },
+        {
+          "name": "mygreeterv3client-SRDef",
+          "composedOf": {
+            "application": {
+              "names": [
+                "mygreeterv3client"
+              ]
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\Helm.Rollout.Parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            },
+            {
+              "name": "HelmInputs"
+            }
+          ]
+        },
+        {
+          "name": "mygreeterv3server-SRDef",
+          "composedOf": {
+            "application": {
+              "names": [
+                "mygreeterv3server"
+              ]
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\Helm.Rollout.Parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            },
+            {
+              "name": "HelmInputs"
+            }
+          ]
+        },
+        {
+          "name": "mygreeterv3async-SRDef",
+          "composedOf": {
+            "application": {
+              "names": [
+                "mygreeterv3async"
+              ]
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\Helm.Rollout.Parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            },
+            {
+              "name": "HelmInputs"
+            }
+          ]
+        },
+        {
+          "name": "mygreeterv3demoserver-SRDef",
+          "composedOf": {
+            "application": {
+              "names": [
+                "mygreeterv3demoserver"
+              ]
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\Helm.Rollout.Parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            },
+            {
+              "name": "HelmInputs"
+            }
+          ]
+        },
+        {
+          "name": "PublishImageShellExtension-SRDef",
+          "composedOf": {
+            "extension": {
+              "rolloutParametersPath": "Parameters\\PublishImage.Parameters.json",
+              "shell": [
+                {
+                  "type": "push-image-to-acr",
+                  "properties": {
+                    "imageName": "adm-ubuntu-2004-l",
+                    "imageVersion": "v5"
+                  }
+                }
+              ]
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ApplicationDefinitions": [
+    {
+      "name": "mygreeterv3client",
+      "rollbackOnFailure": false,
+      "azureKubernetesService": {
+        "releaseName": "mygreeterv3-client",
+        "chart": {
+          "reference": {
+            "path": "Build\\mygreeterv3-0.1.0.tgz"
+          }
+        },
+        "tools": {
+          "helm": {
+            "version": "3.15",
+            "arguments": {
+              "timeout": "PT30M"
+            }
+          }
+        },
+        "valuesPaths": [
+          "Build\\values-common.yaml",
+          "Build\\values-client.yaml"
+        ]
+      }
+    },
+    {
+      "name": "mygreeterv3server",
+      "rollbackOnFailure": false,
+      "azureKubernetesService": {
+        "releaseName": "mygreeterv3-server",
+        "chart": {
+          "reference": {
+            "path": "Build\\mygreeterv3-0.1.0.tgz"
+          }
+        },
+        "tools": {
+          "helm": {
+            "version": "3.15",
+            "arguments": {
+              "timeout": "PT30M"
+            }
+          }
+        },
+        "valuesPaths": [
+          "Build\\values-common.yaml",
+          "Build\\values-server.yaml"
+        ]
+      }
+    },
+    {
+      "name": "mygreeterv3async",
+      "rollbackOnFailure": false,
+      "azureKubernetesService": {
+        "releaseName": "mygreeterv3-async",
+        "chart": {
+          "reference": {
+            "path": "Build\\mygreeterv3-0.1.0.tgz"
+          }
+        },
+        "tools": {
+          "helm": {
+            "version": "3.15",
+            "arguments": {
+              "timeout": "PT30M"
+            }
+          }
+        },
+        "valuesPaths": [
+          "Build\\values-common.yaml",
+          "Build\\values-async.yaml"
+        ]
+      }
+    },
+    {
+      "name": "mygreeterv3demoserver",
+      "rollbackOnFailure": false,
+      "azureKubernetesService": {
+        "releaseName": "mygreeterv3-demoserver",
+        "chart": {
+          "reference": {
+            "path": "Build\\mygreeterv3-0.1.0.tgz"
+          }
+        },
+        "tools": {
+          "helm": {
+            "version": "3.15",
+            "arguments": {
+              "timeout": "PT30M"
+            }
+          }
+        },
+        "valuesPaths": [
+          "Build\\values-common.yaml",
+          "Build\\values-demoserver.yaml"
+        ]
+      }
+    }
+  ]
+}

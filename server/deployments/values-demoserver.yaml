@@ -1,0 +1,34 @@
+# Default values for demoserver.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: servicehubval-mygreeterv3-demoserver
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 50071
+
+command:
+  - /demoserver
+
+args:
+  - start
+  - --json-log
+  - --port=50071
+
+# Info used for authorization policy
+allowedPrincipals:
+  - cluster.local/ns/servicehubval-mygreeterv3-server/sa/servicehubval-mygreeterv3-server
+
+allowedRequests:
+  - /MyGreeter/SayHello

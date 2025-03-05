@@ -1,0 +1,91 @@
+#################################################################################
+#                               OneBranch Pipelines                             #
+# Documentation:  https://aka.ms/obpipelines                                    #
+# Yaml Schema:    https://aka.ms/obpipelines/yaml/schema                        #
+# Support:        https://aka.ms/onebranchsup                                   #
+#################################################################################
+
+trigger: none
+
+parameters:
+  - name: "rolloutType"
+    displayName: "SDP rollout type"
+    type: string
+    default: "normal"
+    values:
+      - normal
+      - emergency
+      - globaloutage
+
+  - name: "overrideManagedValidationDuration"
+    displayName: "Override standard SDP duration?"
+    type: boolean
+    default: false
+
+  - name: "managedValidationDurationInHours"
+    # This parameter is only used when overrideManagedValidationDuration is set to true.
+    # For normal rollouts, value must be greater than or equal to 24 hours.
+    # For emergency rollouts, value must be greater than or equal to 1 hour.
+    # For globaloutage rollouts, value must be greater than or equal to 0 hours
+    displayName: "Override standard SDP duration (in hours)"
+    type: number
+    # We don't actually use this parameter in the template, but we need to set a default value to avoid validation errors.
+    # If we do set overrideManagedValidationDuration to true, this parameter can get set at pipeline runtime.
+    default: 0
+
+  - name: "icmIncidentId"
+    displayName: "IcM Incident Id"
+    type: number
+    default: 0
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+  pipelines:
+    - pipeline: build-artifacts
+      #This release pipeline file works with any ev2 artifact build pipeline as long as it produces the required artifacts with the paths mentioned below.
+      ######################################################################
+      # Below is the only line that needs to be changed for a new release pipeline.
+      # Replace the value of the source attribute with the name of the build pipeline that produces the artifacts.
+      source: "[OneBranch][Official][Build] MyGreeter"
+      ######################################################################
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  parameters:
+    ev2ManagedSdpRolloutConfig:
+      rolloutType: ${{parameters.rolloutType}}
+      overrideManagedValidationDuration: ${{parameters.overrideManagedValidationDuration}}
+      managedValidationOverrideDurationInHours: ${{parameters.managedValidationDurationInHours}}
+      icmIncidentId: ${{parameters.icmIncidentId}}
+
+    stages:
+      # PROD (Public)
+      # TODO: Add a stage for auto approval to integration test env.
+      - stage: "PROD_Managed_SDP"
+        displayName: "PROD: Managed SDP"
+        variables:
+          ob_release_environment: Production
+        jobs:
+          - job: PROD_Managed_SDP
+            displayName: "PROD_Managed_SDP"
+            pool:
+              type: release # read more about custom job types at https://aka.ms/obpipelines/yaml/jobs
+            steps:
+              - download: build-artifacts
+              - task: vsrm-ev2.ev2-rollout.ev2-rollout-task.Ev2RARollout@2
+                displayName: "Ev2 Managed SDP Rollout"
+                inputs:
+                  EndpointProviderType: ApprovalService
+                  ApprovalServiceEnvironment: Production
+                  TaskAction: RegisterAndRollout
+                  SkipRegistrationIfExists: true
+                  ServiceRootPath: $(Pipeline.Workspace)/build-artifacts/drop_combineArtifacts_prepare/Ev2Specs
+                  RolloutSpecPath: $(Pipeline.Workspace)/build-artifacts/drop_combineArtifacts_prepare/Ev2Specs/rolloutSpec.json
+                  StageMapName: "Microsoft.Azure.SDP.Standard"
+                  #Select: regions(southcentralus, australiaeast, eastus2)
+                  Select: regions(australiaeast, eastus2, swedencentral, southeastasia)

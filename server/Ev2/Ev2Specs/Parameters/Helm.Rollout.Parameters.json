@@ -1,0 +1,50 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/rolloutParameters.json",
+  "contentVersion": "1.0.0.0",
+  "applications": [
+    {
+      "ServiceResourceDefinitionName": "mygreeterv3server-SRDef",
+      "ApplicationDefinitionName": "mygreeterv3server",
+      "authentication": {
+        "armResourceName": "servicehubval-{{.resourcesName}}-cluster",
+        "type": "CertificateAuthentication",
+        "properties": {
+          "aksRole": "User"
+        }
+      }
+    },
+    {
+      "ServiceResourceDefinitionName": "mygreeterv3demoserver-SRDef",
+      "ApplicationDefinitionName": "mygreeterv3demoserver",
+      "authentication": {
+        "armResourceName": "servicehubval-{{.resourcesName}}-cluster",
+        "type": "CertificateAuthentication",
+        "properties": {
+          "aksRole": "User"
+        }
+      }
+    },
+    {
+      "ServiceResourceDefinitionName": "mygreeterv3async-SRDef",
+      "ApplicationDefinitionName": "mygreeterv3async",
+      "authentication": {
+        "armResourceName": "servicehubval-{{.resourcesName}}-cluster",
+        "type": "CertificateAuthentication",
+        "properties": {
+          "aksRole": "User"
+        }
+      }
+    },
+    {
+      "ServiceResourceDefinitionName": "mygreeterv3client-SRDef",
+      "ApplicationDefinitionName": "mygreeterv3client",
+      "authentication": {
+        "armResourceName": "servicehubval-{{.resourcesName}}-cluster",
+        "type": "CertificateAuthentication",
+        "properties": {
+          "aksRole": "User"
+        }
+      }
+    }
+  ]
+}

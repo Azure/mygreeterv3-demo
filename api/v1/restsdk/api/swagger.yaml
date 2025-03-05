@@ -1,0 +1,568 @@
+openapi: 3.0.1
+info:
+  title: api.proto
+  version: version not set
+servers:
+- url: /
+tags:
+- name: MyGreeter
+paths:
+  /v1/async/longrunningoperation:
+    post:
+      tags:
+      - MyGreeter
+      summary: Start a long running operation.
+      description: This call starts an async long running operation.
+      operationId: MyGreeter_StartLongRunningOperation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartLongRunningOperationRequest'
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartLongRunningOperationResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+      x-codegen-request-body-name: body
+  /v1/hello:
+    post:
+      tags:
+      - MyGreeter
+      summary: Send a greeting
+      description: This operation sends a greeting to the user.
+      operationId: MyGreeter_SayHello
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelloRequest'
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloReply'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+      x-codegen-request-body-name: body
+  /v1/resourcegroups:
+    get:
+      tags:
+      - MyGreeter
+      summary: List all resource groups
+      description: This operation lists all the resource groups.
+      operationId: MyGreeter_ListResourceGroups
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResourceGroupResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    post:
+      tags:
+      - MyGreeter
+      summary: Create a resource group
+      description: This operation creates a new resource group.
+      operationId: MyGreeter_CreateResourceGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResourceGroupRequest'
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+      x-codegen-request-body-name: body
+  /v1/resourcegroups/{name}:
+    get:
+      tags:
+      - MyGreeter
+      summary: Read a resource group
+      description: This operation reads the details of a resource group.
+      operationId: MyGreeter_ReadResourceGroup
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadResourceGroupResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    put:
+      tags:
+      - MyGreeter
+      summary: Update a resource group
+      description: This operation updates the tags of a resource group.
+      operationId: MyGreeter_UpdateResourceGroup
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateResourceGroupResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+      x-codegen-request-body-name: tags
+    delete:
+      tags:
+      - MyGreeter
+      summary: Delete a resource group
+      description: This operation deletes a resource group.
+      operationId: MyGreeter_DeleteResourceGroup
+      parameters:
+      - name: name
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /v1/resourcegroups/{rgName}/storageaccounts:
+    get:
+      tags:
+      - MyGreeter
+      summary: List all storage accounts
+      description: This operation lists all the storage accounts.
+      operationId: MyGreeter_ListStorageAccounts
+      parameters:
+      - name: rgName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStorageAccountResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    post:
+      tags:
+      - MyGreeter
+      summary: Create a storage account
+      description: This operation creates a new storage account.
+      operationId: MyGreeter_CreateStorageAccount
+      parameters:
+      - name: rgName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyGreeterCreateStorageAccountBody'
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateStorageAccountResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+      x-codegen-request-body-name: body
+  /v1/resourcegroups/{rgName}/storageaccounts/{saName}:
+    get:
+      tags:
+      - MyGreeter
+      summary: Read a storage account
+      description: This operation reads the details of a storage account.
+      operationId: MyGreeter_ReadStorageAccount
+      parameters:
+      - name: rgName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: saName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadStorageAccountResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    put:
+      tags:
+      - MyGreeter
+      summary: Update a storage account
+      description: This operation updates the tags of a storage account.
+      operationId: MyGreeter_UpdateStorageAccount
+      parameters:
+      - name: rgName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: saName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateStorageAccountResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+      x-codegen-request-body-name: tags
+    delete:
+      tags:
+      - MyGreeter
+      summary: Delete a storage account
+      description: This operation deletes a storage account.
+      operationId: MyGreeter_DeleteStorageAccount
+      parameters:
+      - name: rgName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: saName
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        city:
+          title: The city name
+          type: string
+        state:
+          title: The state name
+          type: string
+        zipcode:
+          title: The zip code
+          type: integer
+          format: int32
+        street:
+          title: The street name
+          type: string
+    CreateResourceGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        region:
+          type: string
+    CreateStorageAccountResponse:
+      type: object
+      properties:
+        name:
+          type: string
+      example:
+        name: name
+    HelloReply:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: message
+    HelloRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+          format: int32
+        email:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+    ListResourceGroupResponse:
+      type: object
+      properties:
+        rgList:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceGroup'
+      example:
+        rgList:
+        - name: name
+          location: location
+          id: id
+        - name: name
+          location: location
+          id: id
+    ListStorageAccountResponse:
+      type: object
+      properties:
+        saList:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageAccount'
+      example:
+        saList:
+        - name: name
+          location: location
+          id: id
+        - name: name
+          location: location
+          id: id
+    MyGreeterCreateStorageAccountBody:
+      type: object
+      properties:
+        region:
+          type: string
+    ReadResourceGroupResponse:
+      type: object
+      properties:
+        resourceGroup:
+          $ref: '#/components/schemas/ResourceGroup'
+      example:
+        resourceGroup:
+          name: name
+          location: location
+          id: id
+    ReadStorageAccountResponse:
+      type: object
+      properties:
+        storageAccount:
+          $ref: '#/components/schemas/StorageAccount'
+      example:
+        storageAccount:
+          name: name
+          location: location
+          id: id
+    ResourceGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+      example:
+        name: name
+        location: location
+        id: id
+    StartLongRunningOperationRequest:
+      title: '********************ASYNC OPERATIONS********************'
+      type: object
+      properties:
+        entityId:
+          type: string
+        entityType:
+          type: string
+        expirationTimestamp:
+          type: string
+          format: date-time
+    StartLongRunningOperationResponse:
+      type: object
+      properties:
+        operationId:
+          type: string
+      example:
+        operationId: operationId
+    StorageAccount:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+      example:
+        name: name
+        location: location
+        id: id
+    UpdateResourceGroupResponse:
+      type: object
+      properties:
+        resourceGroup:
+          $ref: '#/components/schemas/ResourceGroup'
+      example:
+        resourceGroup:
+          name: name
+          location: location
+          id: id
+    UpdateStorageAccountResponse:
+      type: object
+      properties:
+        storageAccount:
+          $ref: '#/components/schemas/StorageAccount'
+      example:
+        storageAccount:
+          name: name
+          location: location
+          id: id
+    protobufAny:
+      type: object
+      properties:
+        '@type':
+          type: string
+      additionalProperties:
+        type: object
+      x-schema-name: protobufAny
+    rpcStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/protobufAny'
+x-original-swagger-version: "2.0"

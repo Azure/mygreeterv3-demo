@@ -1,0 +1,25 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "server.fullname" . }}
+  namespace: {{ include "server.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "server.fullname" . }}
+  # More actions available: https://istio.io/latest/docs/reference/config/security/authorization-policy/
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: 
+        {{- range .Values.allowedPrincipals }}
+        - {{ . }}
+        {{- end }}
+    to:
+    - operation:
+        methods: ["POST", "GET", "DELETE", "PUT"]
+        paths:
+        {{- range .Values.allowedRequests }}
+        - {{ . }}
+        {{- end }}

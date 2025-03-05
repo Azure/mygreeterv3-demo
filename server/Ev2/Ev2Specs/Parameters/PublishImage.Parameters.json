@@ -1,0 +1,56 @@
+// TODO: Add specific tag such as SHA2 to make them unique and secure
+// TODO: This part is generic. Think how to avoid duplicating it in every service
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/rolloutParameters.json",
+  "contentVersion": "1.0.0.0",
+  "shellExtensions": [
+    {
+      "name": "push-image-to-acr",
+      "type": "push-image-to-acr",
+      "properties": {
+        "maxExecutionTime": "PT50M"
+      },
+      "package": {
+        "reference": {
+          "path": "push-image-to-acr.tar"
+        }
+      },
+      "launch": {
+        "command": [
+          "/bin/bash",
+          "/package/unarchive/Shell/push-image-to-acr.sh"
+        ],
+        "environmentVariables": [
+          {
+            "name": "DESTINATION_ACR_NAME",
+            "value": "servicehubval{{.resourcesName}}{{.location}}acr"
+          },
+          {
+            "name": "TARBALL_IMAGE_FILE_SAS",
+            "reference": {
+              "path": "Build\\mygreeterv3-image.tar"
+            }
+          },
+          {
+            "name": "DESTINATION_FILE_NAME",
+            "value": "mygreeterv3-image.tar"
+          },
+          {
+            "name": "IMAGE_NAME",
+            "value": "mygreeterv3"
+          },
+          {
+            "name": "TAG_NAME",
+            "value": "{{.serviceImageTag}}"
+          }
+        ],
+        "identity": {
+          "type": "userAssigned",
+          "userAssignedIdentities": [
+            "/subscriptions/{{.subscriptionId}}/resourcegroups/{{.resourceGroupname}}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/servicehubval{{.resourcesName}}pipelineidentity01"
+          ]
+        }
+      }
+    }
+  ]
+}

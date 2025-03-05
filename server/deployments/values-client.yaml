@@ -1,0 +1,30 @@
+# Default values for client.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: servicehubval-mygreeterv3-client
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+command:
+  - /client
+
+args:
+  - hello
+  - --interval-milli-sec=60000
+  - --json-log
+  - --remote-addr=servicehubval-mygreeterv3-server.servicehubval-mygreeterv3-server:50051
+  - --http-addr=http://servicehubval-mygreeterv3-server.servicehubval-mygreeterv3-server.svc.cluster.local:50061
+
+# Info used for authorization policy
+allowedPrincipals: []
+
+allowedRequests: []
