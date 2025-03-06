@@ -35,7 +35,6 @@ This module stores the implementation of the microservice.
     - Accepting gRPC calls and HTTP/REST calls.
     - Making calls to its dependency to fullfil incoming calls. The dependency can be a gRPC service, an HTTP service such as Azure, or something else. When it is Azure, it demonstrates how the code can assume an Azure identity and gain access to Azure.
     - The server is configured with both server interceptors (for incoming calls) and client interceptors (for outgoing calls). See details at [default interceptors](https://github.com/Azure/aks-middleware/blob/main/interceptor/interceptor.go). The buf.validate and servicehub.fieldoptions.loggable annotations in the protobuf need to work with the interceptors to be effective.
-  - demoserver. The demoserver is purely for handling calls from the server binary so that the server binary can demonstrate its outgoing calls to another gRPC service.
   - async. The async binary processes asynchronous operations (which are typically long-running) by using a processor with handlers provided by the [aks-async](https://github.com/Azure/aks-async) library.
     - This component does not receive gRPC calls, rather grabs operations directly from a connected Azure Service Bus resource in order to process them accordingly.
     - Async also utilizes an Azure SQL Server created by the service specific resources earlier, and it uses the url or connection string with the name of the specific database to connect to it.
@@ -111,17 +110,6 @@ The following command runs the server that will call the demoserver's sayHello m
 ```bash
 go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/server start \
     --remote-addr localhost:50052
-```
-
-### Demoserver
-
-When the server needs to call demoserver, you need to start the demoserver in a different port. Otherwise, both server and demoserver will try to use the same port and cause conflict.
-
-The following command runs the demoserver on a specific port 50052.
-
-```bash
-go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver start \
-    --port 50052
 ```
 
 ### Client
@@ -316,17 +304,6 @@ kubectl get pods -n servicehubval-mygreeterv3-server
 # check logs
 export SERVER_POD=$(kubectl get pod -n servicehubval-mygreeterv3-server -o jsonpath="{.items[0].metadata.name}")
 kubectl logs $SERVER_POD -n servicehubval-mygreeterv3-server
-```
-
-Demoserver:
-
-```bash
-# check if pod is running
-kubectl get pods -n servicehubval-mygreeterv3-demoserver
-
-# check logs
-export DEMOSERVER_POD=$(kubectl get pod -n servicehubval-mygreeterv3-demoserver -o jsonpath="{.items[0].metadata.name}")
-kubectl logs $DEMOSERVER_POD -n servicehubval-mygreeterv3-demoserver
 ```
 
 Client
