@@ -39,8 +39,9 @@ This module stores the implementation of the microservice.
     - This component does not receive gRPC calls, rather grabs operations directly from a connected Azure Service Bus resource in order to process them accordingly.
     - Async also utilizes an Azure SQL Server created by the service specific resources earlier, and it uses the url or connection string with the name of the specific database to connect to it.
 	  - The database is created by the bicep files and deployed in the deployment of service specific resources. The entityTableName might not be created yet (since the table is created by the server and async and server should initialize simultaneously) but that doesn't matter because if the entityTable hasn't been created, it means that the server hasn't started and async should not be receiving any messages through the service bus to process.
+  - demoserver. The demoserver binary is a new component that gets forwarded SayHello calls from the server.
 - deployments. The deployments are via [Helm](https://helm.sh/).
-  - The three binaries are deployed as k8s deployments. The server and the demoserver are exposed as k8s service (ClusterIP).
+  - The four binaries are deployed as k8s deployments. The server and the demoserver are exposed as k8s service (ClusterIP).
   - To grant Azure managed identity to the server microservice, [AKS workload identity](https://learn.microsoft.com/en-us/azure/aks/workload-identity-deploy-cluster) is used. It involves multiple components.
     - Shared resource: The AKS cluster needs to enable this feature.
     - Service resource: Managed identity needs to trust the AKS cluster as an OIDC issuer. The managed identity output its client ID.
@@ -317,7 +318,16 @@ export CLIENT_POD=$(kubectl get pod -n servicehubval-mygreeterv3-client -o jsonp
 kubectl logs $CLIENT_POD -n servicehubval-mygreeterv3-client
 ```
 
+Demoserver
 
+```bash
+# check if pod is running
+kubectl get pods -n servicehubval-mygreeterv3-demoserver
+
+# check logs
+export DEMOSERVER_POD=$(kubectl get pod -n servicehubval-mygreeterv3-demoserver -o jsonpath="{.items[0].metadata.name}")
+kubectl logs $DEMOSERVER_POD -n servicehubval-mygreeterv3-demoserver
+```
 
 
 
