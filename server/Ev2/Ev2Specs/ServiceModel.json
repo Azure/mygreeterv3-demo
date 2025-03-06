@@ -93,6 +93,27 @@
           ]
         },
         {
+          "name": "mygreeterv3demoserver-SRDef",
+          "composedOf": {
+            "application": {
+              "names": [
+                "mygreeterv3demoserver"
+              ]
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\Helm.Rollout.Parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "sharedInputs"
+            },
+            {
+              "name": "HelmInputs"
+            }
+          ]
+        },
+        {
           "name": "PublishImageShellExtension-SRDef",
           "composedOf": {
             "extension": {
@@ -187,6 +208,30 @@
         "valuesPaths": [
           "Build\\values-common.yaml",
           "Build\\values-async.yaml"
+        ]
+      }
+    },
+    {
+      "name": "mygreeterv3demoserver",
+      "rollbackOnFailure": false,
+      "azureKubernetesService": {
+        "releaseName": "mygreeterv3-demoserver",
+        "chart": {
+          "reference": {
+            "path": "Build\\mygreeterv3-0.1.0.tgz"
+          }
+        },
+        "tools": {
+          "helm": {
+            "version": "3.15",
+            "arguments": {
+              "timeout": "PT30M"
+            }
+          }
+        },
+        "valuesPaths": [
+          "Build\\values-common.yaml",
+          "Build\\values-demoserver.yaml"
         ]
       }
     }
