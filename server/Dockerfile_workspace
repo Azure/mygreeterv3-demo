@@ -25,7 +25,7 @@ RUN cd server && go build dev.azure.com/service-hub-flg/service_hub_validation/_
 # FROM busybox
 FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu
 COPY --from=build /mygreeterv3/server/client /
-COPY --from=build mygreeterv3//server/demoserver /
+COPY --from=build /mygreeterv3/server/demoserver /
 COPY --from=build /mygreeterv3/server/server /
 
 CMD ["/server"]

@@ -39,8 +39,12 @@ This module stores the implementation of the microservice.
     - This component does not receive gRPC calls, rather grabs operations directly from a connected Azure Service Bus resource in order to process them accordingly.
     - Async also utilizes an Azure SQL Server created by the service specific resources earlier, and it uses the url or connection string with the name of the specific database to connect to it.
 	  - The database is created by the bicep files and deployed in the deployment of service specific resources. The entityTableName might not be created yet (since the table is created by the server and async and server should initialize simultaneously) but that doesn't matter because if the entityTable hasn't been created, it means that the server hasn't started and async should not be receiving any messages through the service bus to process.
+  - demoserver. The demoserver binary is an additional microservice that demonstrates how to run a demo server.
+    - Accepting gRPC calls and HTTP/REST calls.
+    - Making calls to its dependency to fulfill incoming calls. The dependency can be a gRPC service, an HTTP service such as Azure, or something else. When it is Azure, it demonstrates how the code can assume an Azure identity and gain access to Azure.
+    - The demoserver is configured with both server interceptors (for incoming calls) and client interceptors (for outgoing calls). See details at [default interceptors](https://github.com/Azure/aks-middleware/blob/main/interceptor/interceptor.go). The buf.validate and servicehub.fieldoptions.loggable annotations in the protobuf need to work with the interceptors to be effective.
 - deployments. The deployments are via [Helm](https://helm.sh/).
-  - The three binaries are deployed as k8s deployments. The server and the demoserver are exposed as k8s service (ClusterIP).
+  - The four binaries are deployed as k8s deployments. The server and the demoserver are exposed as k8s service (ClusterIP).
   - To grant Azure managed identity to the server microservice, [AKS workload identity](https://learn.microsoft.com/en-us/azure/aks/workload-identity-deploy-cluster) is used. It involves multiple components.
     - Shared resource: The AKS cluster needs to enable this feature.
     - Service resource: Managed identity needs to trust the AKS cluster as an OIDC issuer. The managed identity output its client ID.
@@ -124,6 +128,21 @@ The following command runs the client which will repeatedly calls the service on
 
 ```bash
 go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/client hello --remote-addr localhost:50052
+```
+
+### Demoserver
+
+The following command runs the demoserver with minimal functionality. The demoserver starts to serve on the default address `localhost:50052` and the enable-azureSDK-calls flag is set to false. In this case, only the sayHello method works. It is served directly by the demoserver. It won't call Azure either.
+
+```bash
+go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver start 
+```
+
+The following command runs the demoserver with the azureSDK calls enabled. Because the code runs on your local machine, your identity is used to call Azure. You need to have enough permissions on the subscription to allow the demoserver to call Azure successfully. Otherwise the demoserver will report permission errors.
+
+```bash
+go run dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver start \
+    --enable-azureSDK-calls true --subscription-id <sub_id>
 ```
 
 ### Big picture on a local machine
@@ -246,6 +265,9 @@ make build-workspace-image
 # the shared resources where acr is created.
 make push-image
 
+# Push demoserver image to acr.
+make push-demoserver-image
+
 # (If svc running on aks cluster) Upgrade service on AKS cluster
 make upgrade
 # (If svc not running on aks cluster) Deploy service to AKS cluster
@@ -274,6 +296,8 @@ source ~/.bashrc
   - [Dockerfile](server/Dockerfile_workspace): Its build context (input directory) is mygreeterv3. The go.work file, the api directory, and the server directory are all used. The version of the api module defined in go.mod is ignored. The latest code in the api directory is used.
 - make push-image
   - Push the image to the ACR which is a shared resource.
+- make push-demoserver-image
+  - Push the demoserver image to the ACR which is a shared resource.
 - make upgrade or make install
   - Connect to the AKS cluster (a shared resource) and deploy the services to the cluster.
   - Connect resources with code. One example is the managed identity created as service resources. After creating the managed identity, the identity's client ID needs to be passed into k8s service account. Through this client ID, AKS workload identity can let the code/service account assume the identity of the managed identity.
@@ -315,6 +339,17 @@ kubectl get pods -n servicehubval-mygreeterv3-client
 # check logs
 export CLIENT_POD=$(kubectl get pod -n servicehubval-mygreeterv3-client -o jsonpath="{.items[0].metadata.name}")
 kubectl logs $CLIENT_POD -n servicehubval-mygreeterv3-client
+```
+
+Demoserver
+
+```bash
+# check if pod is running
+kubectl get pods -n servicehubval-mygreeterv3-demoserver
+
+# check logs
+export DEMOSERVER_POD=$(kubectl get pod -n servicehubval-mygreeterv3-demoserver -o jsonpath="{.items[0].metadata.name}")
+kubectl logs $DEMOSERVER_POD -n servicehubval-mygreeterv3-demoserver
 ```
 
 

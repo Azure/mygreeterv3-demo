@@ -17,6 +17,7 @@ RUN go mod tidy
 RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/client
 RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/server
 RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/async
+RUN go build dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/demoserver
 
 
 # Build stage II: 
@@ -26,5 +27,6 @@ FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu
 COPY --from=build /server/client /
 COPY --from=build /server/server /
 COPY --from=build /server/async /
+COPY --from=build /server/demoserver /
 
 CMD ["/server"]
