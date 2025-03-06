@@ -1,4 +1,3 @@
-
 REGISTRY_NAME=servicehubregistry
 IMG_NAME=service_hub_environment
 IMG_DATE_TAG=20250228
@@ -38,6 +37,7 @@ build: template-files
     go build -o bin/ dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/client
     go build -o bin/ dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/server
     go build -o bin/ dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/async
+    go build -o bin/ dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/cmd/externalserver
     
 build-image: template-files
     cd generated; make build-image
@@ -62,14 +62,16 @@ install: template-files
 		"cd binded-data/$(DIR_NAME)/server; export KUBECONFIG=\$$(pwd)/generated/.kube/config; \
         cd deployments; helm install servicehubval-mygreeterv3-client . -f values-common.yaml -f values-client.yaml; \
         helm install servicehubval-mygreeterv3-server . -f values-common.yaml -f values-server.yaml -f ../$(AZURESDK_PATH); \
-        helm install servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml -f ../$(AZURESDK_PATH)"; \
+        helm install servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml -f ../$(AZURESDK_PATH); \
+        helm install servicehubval-mygreeterv3-externalserver . -f values-common.yaml -f values-externalserver.yaml -f ../$(AZURESDK_PATH)"; \
     else \
         echo ".Azuresdk_properties_outputs.yaml file does not exist. Run the make deploy-resources cmd"; \
         docker run --rm -u $(USER_ID) --mount src=$(MAIN_DIR),target=/app/binded-data,type=bind $(REGISTRY_NAME).azurecr.io/$(IMG_NAME):$(IMG_DATE_TAG) /bin/bash -c \
 		"cd binded-data/$(DIR_NAME)/server; export KUBECONFIG=\$$(pwd)/generated/.kube/config; \
         cd deployments; helm install servicehubval-mygreeterv3-client . -f values-common.yaml -f values-client.yaml; \
         helm install servicehubval-mygreeterv3-server . -f values-common.yaml -f values-server.yaml; \
-        helm install servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml"; \
+        helm install servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml; \
+        helm install servicehubval-mygreeterv3-externalserver . -f values-common.yaml -f values-externalserver.yaml"; \
     fi
 
 upgrade: template-files
@@ -79,14 +81,16 @@ upgrade: template-files
 		"cd binded-data/$(DIR_NAME)/server; export KUBECONFIG=\$$(pwd)/generated/.kube/config; \
         cd deployments; helm upgrade servicehubval-mygreeterv3-client . -f values-common.yaml -f values-client.yaml; \
         helm upgrade servicehubval-mygreeterv3-server . -f values-common.yaml -f values-server.yaml -f ../$(AZURESDK_PATH); \
-        helm upgrade servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml -f ../$(AZURESDK_PATH)"; \
+        helm upgrade servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml -f ../$(AZURESDK_PATH); \
+        helm upgrade servicehubval-mygreeterv3-externalserver . -f values-common.yaml -f values-externalserver.yaml -f ../$(AZURESDK_PATH)"; \
     else \
         echo ".Azuresdk_properties_outputs.yaml file does not exist. Run the make deploy-resources cmd"; \
         docker run --rm -u $(USER_ID) --mount src=$(MAIN_DIR),target=/app/binded-data,type=bind $(REGISTRY_NAME).azurecr.io/$(IMG_NAME):$(IMG_DATE_TAG) /bin/bash -c \
 		"cd binded-data/$(DIR_NAME)/server; export KUBECONFIG=\$$(pwd)/generated/.kube/config; \
         cd deployments; helm upgrade servicehubval-mygreeterv3-client . -f values-common.yaml -f values-client.yaml; \
         helm upgrade servicehubval-mygreeterv3-server . -f values-common.yaml -f values-server.yaml; \
-        helm upgrade servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml"; \
+        helm upgrade servicehubval-mygreeterv3-async . -f values-common.yaml -f values-async.yaml; \
+        helm upgrade servicehubval-mygreeterv3-externalserver . -f values-common.yaml -f values-externalserver.yaml"; \
     fi
 
 uninstall: template-files
@@ -94,5 +98,5 @@ uninstall: template-files
 	"cd binded-data/$(DIR_NAME)/server; export KUBECONFIG=\$$(pwd)/generated/.kube/config; \
     helm uninstall servicehubval-mygreeterv3-client; \
     helm uninstall servicehubval-mygreeterv3-async; \
-	helm uninstall servicehubval-mygreeterv3-server;";
-
+	helm uninstall servicehubval-mygreeterv3-server; \
+    helm uninstall servicehubval-mygreeterv3-externalserver";
