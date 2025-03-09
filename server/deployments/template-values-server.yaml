@@ -21,7 +21,7 @@ command:
 args:
   - start
   - --json-log
-  - --remote-addr=""
+  - --remote-addr="servicehubval-mygreeterv3-demoserver:50052"
   - --enable-azureSDK-calls=true
   - --database-server-url=mygreeterv3-{{.resourcesName}}-{{.location}}-sql-server.database.windows.net
   - --database-name=mygreeterv3-{{.resourcesName}}-sql-database
