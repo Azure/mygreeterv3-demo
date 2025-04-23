@@ -12,6 +12,7 @@ import (
 	"database/sql"
 
 	pb "dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/api/v1"
+	"dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/internal/externalserver"
 	"dev.azure.com/service-hub-flg/service_hub_validation/_git/service_hub_validation_service.git/mygreeterv3/server/internal/logattrs"
 	oc "github.com/Azure/OperationContainer/api/v1"
 	ocClient "github.com/Azure/OperationContainer/api/v1/client"
@@ -48,6 +49,7 @@ type Server struct {
 	ResourceGroupClient      *armresources.ResourceGroupsClient
 	AccountsClient           *armstorage.AccountsClient
 	client                   pb.MyGreeterClient
+	externalClient           pb.MyGreeterClient
 	operationContainerClient oc.OperationContainerClient
 	serviceBusClient         servicebus.ServiceBusClientInterface
 	serviceBusSender         servicebus.SenderInterface
@@ -103,6 +105,13 @@ func (s *Server) Init(options Options) {
 		// logging the error for transparency, retry interceptor will handle it
 		if err != nil {
 			log.Error("did not connect: " + err.Error())
+		}
+	}
+
+	if options.ExternalServerAddr != "" {
+		s.externalClient, err = client.NewClient(options.ExternalServerAddr, interceptor.GetClientInterceptorLogOptions(logger, logattrs.GetAttrs()))
+		if err != nil {
+			log.Error("did not connect to external server: " + err.Error())
 		}
 	}
 
@@ -199,4 +208,37 @@ func sanitizeTableName(tableName string) error {
 		return fmt.Errorf("invalid table name: %s", tableName)
 	}
 	return nil
+}
+
+func (s *Server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+	logger := log.New(log.NewTextHandler(os.Stdout, nil).WithAttrs(logattrs.GetAttrs()))
+	logger.Info("API handler logger output. req: " + in.String())
+
+	if in.GetName() == "TestPanic" {
+		panic("testing panic")
+	}
+
+	if s.externalClient != nil {
+		out, err := s.externalClient.SayHello(ctx, in)
+		if err != nil {
+			logger.Error("Error forwarding request to external server: " + err.Error())
+			return nil, err
+		}
+		return out, nil
+	}
+
+	time.Sleep(200 * time.Millisecond)
+
+	var err error
+	var out = &pb.HelloReply{}
+	if s.client != nil {
+		out, err = s.client.SayHello(ctx, in)
+		if err != nil {
+			return out, err
+		}
+		out.Message += "| appended by server"
+	} else {
+		out, err = &pb.HelloReply{Message: "Echo back what you sent me (SayHello): " + in.GetName() + " " + strconv.Itoa(int(in.GetAge())) + " " + in.GetEmail()}, nil
+	}
+	return out, err
 }
