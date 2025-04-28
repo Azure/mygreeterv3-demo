@@ -27,6 +27,12 @@ func (s *Server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 			return out, err
 		}
 		out.Message += "| appended by server"
+	} else if s.secondaryClient != nil {
+		out, err = s.secondaryClient.SayHello(ctx, in)
+		if err != nil {
+			return out, err
+		}
+		out.Message += "| appended by secondary server"
 	} else {
 		out, err = &pb.HelloReply{Message: "Echo back what you sent me (SayHello): " + in.GetName() + " " + strconv.Itoa(int(in.GetAge())) + " " + in.GetEmail()}, nil
 	}

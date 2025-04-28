@@ -28,3 +28,6 @@ args:
 allowedPrincipals: []
 
 allowedRequests: []
+
+secondaryserver:
+  remoteAddr: servicehubval-mygreeterv3-secondaryserver.servicehubval-mygreeterv3-secondaryserver:50052

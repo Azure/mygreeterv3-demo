@@ -66,3 +66,29 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "secondaryserver.fullname" . }}
+  namespace: {{ include "secondaryserver.fullname" . }}
+  labels:
+    {{- include "secondaryserver.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.secondaryserver.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "secondaryserver.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "secondaryserver.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "secondaryserver.fullname" . }}
+          image: "{{ .Values.secondaryserver.image.repository }}:{{ .Values.secondaryserver.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.secondaryserver.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.secondaryserver.service.port }}
+          resources:
+            {{- toYaml .Values.secondaryserver.resources | nindent 12 }}
