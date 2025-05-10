@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "server.fullname" . }}
-  namespace: {{ include "server.fullname" . }}
+  name: {{ include "externalserver.fullname" . }}
+  namespace: {{ include "externalserver.fullname" . }}
   labels:
-    {{- include "server.labels" . | nindent 4 }}
+    {{- include "externalserver.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "server.selectorLabels" . | nindent 6 }}
+      {{- include "externalserver.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,17 +19,17 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "server.selectorLabels" . | nindent 8 }}
+        {{- include "externalserver.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "server.serviceAccountName" . }}
+      serviceAccountName: {{ include "externalserver.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ include "server.fullname" . }}
+        - name: {{ include "externalserver.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -42,7 +42,6 @@ spec:
             - containerPort: {{ .Values.service.port }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if eq (include "server.fullname" .) .Values.service.serverName }}
           livenessProbe:
             grpc:
               port: {{ .Values.service.port }}
@@ -53,14 +52,6 @@ spec:
               port: {{ .Values.service.port }}
             initialDelaySeconds: {{ .Values.service.readinessInitialDelaySeconds }}
             periodSeconds: {{ .Values.service.readinessPeriodSeconds }}
-          {{- end }}
-        - name: externalserver
-          image: "{{ .Values.externalserver.image.repository }}:{{ .Values.externalserver.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.externalserver.image.pullPolicy }}
-          ports:
-            - containerPort: {{ .Values.externalserver.service.port }}
-          resources:
-            {{- toYaml .Values.externalserver.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
